@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner QR - Herramientas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f0f0f0;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section h2 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .camera-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        #video {
+            width: 100%;
+            display: block;
+        }
+        
+        #canvas {
+            display: none;
+        }
+        
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #51cf66;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+        
+        .info-box.success {
+            background: #e8f5e9;
+            border-left-color: #51cf66;
+        }
+        
+        .info-box.error {
+            background: #ffebee;
+            border-left-color: #ff6b6b;
+        }
+        
+        .registro-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .registro-item.salida {
+            border-left-color: #ff6b6b;
+        }
+        
+        .registro-item.entrada {
+            border-left-color: #51cf66;
+        }
+        
+        .registro-id {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .registro-nombre {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .registro-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .badge.salida {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .badge.entrada {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .settings-list {
+            list-style: none;
+        }
+        
+        .settings-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Scanner QR</h1>
+            <p>Control de Herramientas</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="cambiarTab('scanner')">📷 Scanner</div>
+            <div class="tab" onclick="cambiarTab('historial')">📋 Historial</div>
+            <div class="tab" onclick="cambiarTab('empleados')">👥 Empleados</div>
+        </div>
+        
+        <div class="content">
+            <div id="scanner" class="tab-content active">
+                <div class="section">
+                    <h2>Escanear QR</h2>
+                    <div class="camera-container">
+                        <video id="video"></video>
+                        <canvas id="canvas"></canvas>
+                    </div>
+                    
+                    <div class="camera-controls">
+                        <button class="btn-primary" onclick="iniciarCamera()">📷 Iniciar Cámara</button>
+                        <button class="btn-danger" onclick="detenerCamera()">⏹️ Detener</button>
+                    </div>
+                    
+                    <div id="scan-result"></div>
+                </div>
+                
+                <div class="section">
+                    <h2>Registrar Herramienta</h2>
+                    
+                    <div class="form-group">
+                        <label>ID Herramienta (QR)</label>
+                        <input type="text" id="herramienta-id" placeholder="Escanea o escribe el ID" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Empleado</label>
+                        <select id="empleado">
+                            <option value="">Selecciona un empleado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Acción</label>
+                        <select id="accion">
+                            <option value="salida">📤 Salida (Saca herramienta)</option>
+                            <option value="entrada">📥 Entrada (Devuelve herramienta)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Notas (opcional)</label>
+                        <input type="text" id="notas" placeholder="Agregar notas...">
+                    </div>
+                    
+                    <button class="btn-success" onclick="registrarMovimiento()">✅ Registrar</button>
+                </div>
+            </div>
+            
+            <div id="historial" class="tab-content">
+                <div class="section">
+                    <h2>Historial de Movimientos</h2>
+                    <button class="btn-danger" onclick="limpiarHistorial()" style="margin-bottom: 15px; width: 100%;">🗑️ Limpiar Historial</button>
+                    <div id="historial-list"></div>
+                </div>
+            </div>
+            
+            <div id="empleados" class="tab-content">
+                <div class="section">
+                    <h2>Gestionar Empleados</h2>
+                    
+                    <div class="form-group">
+                        <label>Nombre del Empleado</label>
+                        <input type="text" id="nuevo-empleado" placeholder="Ej: Juan García">
+                    </div>
+                    
+                    <button class="btn-primary" onclick="agregarEmpleado()" style="width: 100%;">➕ Agregar Empleado</button>
+                    
+                    <h2 style="margin-top: 30px;">Empleados Registrados</h2>
+                    <ul id="empleados-list" class="settings-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const herramientas = {
+            'H001': 'Destornillador Phillips Rojo',
+            'H002': 'Destornillador Plano Rojo',
+            'H003': 'Destornillador Gris/Blanco',
+            'H004': 'Alicate de Corte Diagonal',
+            'H005': 'Alicate Multifunción',
+            'H006': 'Pinza de Punta Larga',
+            'H007': 'Pielador de Cables',
+            'H008': 'Crimpadoras',
+            'H009': 'Martillo DeWALT',
+            'H010': 'Cortador de Tubo',
+            'H011': 'Llave Ajustable DeWALT',
+            'H012': 'Destornillador Multiherramienta'
+        };
+        
+        let video, canvas, canvasContext;
+        let scanning = false;
+        
+        function cargarDatos() {
+            const empleados = JSON.parse(localStorage.getItem('empleados')) || ['Juan García', 'Carlos López', 'María Rodríguez'];
+            const historial = JSON.parse(localStorage.getItem('historial')) || [];
+            
+            localStorage.setItem('empleados', JSON.stringify(empleados));
+            localStorage.setItem('historial', JSON.stringify(historial));
+            
+            actualizarSelectEmpleados();
+            actualizarHistorial();
+            actualizarListaEmpleados();
+        }
+        
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function iniciarCamera() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            canvasContext = canvas.getContext('2d');
+            
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            }).then(stream => {
+                video.srcObject = stream;
+                scanning = true;
+                escanearQR();
+                mostrarMensaje('Cámara iniciada', 'info');
+            }).catch(err => {
+                mostrarMensaje('Error al acceder a la cámara: ' + err.message, 'error');
+            });
+        }
+        
+        function detenerCamera() {
+            scanning = false;
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('scan-result').innerHTML = '';
+        }
+        
+        function escanearQR() {
+            if (!scanning) return;
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: 'dontInvert'
+                });
+                
+                if (code) {
+                    document.getElementById('herramienta-id').value = code.data;
+                    detenerCamera();
+                    mostrarMensaje('✅ QR Escaneado: ' + code.data, 'success');
+                    
+                    if (herramientas[code.data]) {
+                        mostrarMensaje('Herramienta: ' + herramientas[code.data], 'success');
+                    }
+                }
+            }
+            
+            requestAnimationFrame(escanearQR);
+        }
+        
+        function registrarMovimiento() {
+            const herramientaId = document.getElementById('herramienta-id').value.trim();
+            const empleado = document.getElementById('empleado').value;
+            const accion = document.getElementById('accion').value;
+            const notas = document.getElementById('notas').value;
+            
+            if (!herramientaId || !empleado) {
+                mostrarMensaje('⚠️ Completa todos los campos requeridos', 'error');
+                return;
+            }
+            
+            if (!herramientas[herramientaId]) {
+                mostrarMensaje('⚠️ ID de herramienta no válido', 'error');
+                return;
+            }
+            
+            const registro = {
+                id: Date.now(),
+                herramientaId: herramientaId,
+                herramientaNombre: herramientas[herramientaId],
+                empleado: empleado,
+                accion: accion,
+                notas: notas,
+                fecha: new Date().toLocaleString('es-ES')
+            };
+            
+            let historial = JSON.parse(localStorage.getItem('historial')) || [];
+            historial.push(registro);
+            localStorage.setItem('historial', JSON.stringify(historial));
+            
+            mostrarMensaje('✅ Movimiento registrado', 'success');
+            
+            document.getElementById('herramienta-id').value = '';
+            document.getElementById('empleado').value = '';
+            document.getElementById('notas').value = '';
+            document.getElementById('accion').value = 'salida';
+            
+            actualizarHistorial();
+        }
+        
+        function actualizarHistorial() {
+            const historial = JSON.parse(localStorage.getItem('historial')) || [];
+            const historialList = document.getElementById('historial-list');
+            
+            if (historial.length === 0) {
+                historialList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div>No hay registros</div>';
+                return;
+            }
+            
+            historialList.innerHTML = historial.reverse().map(reg => `
+                <div class="registro-item ${reg.accion}">
+                    <div class="registro-id">${reg.herramientaId}</div>
+                    <div class="registro-nombre">${reg.herramientaNombre}</div>
+                    <div class="registro-meta">
+                        <span>👤 ${reg.empleado}</span>
+                        <span><span class="badge ${reg.accion}">${reg.accion === 'salida' ? '📤 Salida' : '📥 Entrada'}</span></span>
+                    </div>
+                    <div class="registro-meta" style="margin-top: 8px;">
+                        <span>🕐 ${reg.fecha}</span>
+                    </div>
+                    ${reg.notas ? `<div style="margin-top: 8px; color: #666; font-size: 0.9em;">📝 ${reg.notas}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function limpiarHistorial() {
+            if (confirm('¿Estás seguro de que quieres eliminar todo el historial?')) {
+                localStorage.setItem('historial', JSON.stringify([]));
+                actualizarHistorial();
+                mostrarMensaje('Historial eliminado', 'success');
+            }
+        }
+        
+        function agregarEmpleado() {
+            const nombre = document.getElementById('nuevo-empleado').value.trim();
+            
+            if (!nombre) {
+                mostrarMensaje('⚠️ Escribe el nombre del empleado', 'error');
+                return;
+            }
+            
+            let empleados = JSON.parse(localStorage.getItem('empleados')) || [];
+            
+            if (empleados.includes(nombre)) {
+                mostrarMensaje('⚠️ Este empleado ya existe', 'error');
+                return;
+            }
+            
+            empleados.push(nombre);
+            localStorage.setItem('empleados', JSON.stringify(empleados));
+            
+            document.getElementById('nuevo-empleado').value = '';
+            actualizarSelectEmpleados();
+            actualizarListaEmpleados();
+            mostrarMensaje('✅ Empleado agregado', 'success');
+        }
+        
+        function eliminarEmpleado(nombre) {
+            if (confirm(`¿Eliminar a ${nombre}?`)) {
+                let empleados = JSON.parse(localStorage.getItem('empleados')) || [];
+                empleados = empleados.filter(e => e !== nombre);
+                localStorage.setItem('empleados', JSON.stringify(empleados));
+                
+                actualizarSelectEmpleados();
+                actualizarListaEmpleados();
+                mostrarMensaje('✅ Empleado eliminado', 'success');
+            }
+        }
+        
+        function actualizarSelectEmpleados() {
+            const empleados = JSON.parse(localStorage.getItem('empleados')) || [];
+            const select = document.getElementById('empleado');
+            select.innerHTML = '<option value="">Selecciona un empleado</option>' + 
+                empleados.map(emp => `<option value="${emp}">${emp}</option>`).join('');
+        }
+        
+        function actualizarListaEmpleados() {
+            const empleados = JSON.parse(localStorage.getItem('empleados')) || [];
+            const list = document.getElementById('empleados-list');
+            
+            if (empleados.length === 0) {
+                list.innerHTML = '<div class="empty-state">No hay empleados registrados</div>';
+                return;
+            }
+            
+            list.innerHTML = empleados.map(emp => `
+                <li class="settings-item">
+                    <span>👤 ${emp}</span>
+                    <button class="delete-btn" onclick="eliminarEmpleado('${emp}')">🗑️ Eliminar</button>
+                </li>
+            `).join('');
+        }
+        
+        function mostrarMensaje(mensaje, tipo) {
+            const result = document.getElementById('scan-result');
+            result.innerHTML = `<div class="info-box ${tipo}">${mensaje}</div>`;
+            setTimeout(() => result.innerHTML = '', 5000);
+        }
+        
+        window.onload = cargarDatos;
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Herramientas con QR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .card h2 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .features {
+            background: #f0f0f0;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .features ul {
+            list-style: none;
+            columns: 2;
+        }
+        
+        .features li {
+            padding: 8px 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+        
+        .features li:before {
+            content: '✅ ';
+            color: #51cf66;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Sistema de Control de Herramientas</h1>
+        <p class="subtitle">Gestiona tus herramientas con códigos QR</p>
+        
+        <div class="cards">
+            <div class="card" onclick="window.location.href='descargar-qr.html'">
+                <div class="card-icon">📥</div>
+                <h2>Descargar QR</h2>
+                <p>Genera e imprime los códigos QR de tus herramientas</p>
+            </div>
+            
+            <div class="card" onclick="window.location.href='scanner.html'">
+                <div class="card-icon">📱</div>
+                <h2>Scanner QR</h2>
+                <p>Escanea QR desde tu celular para registrar movimientos</p>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h3>✨ Características Principales</h3>
+            <ul>
+                <li>Escaneo automático de códigos QR</li>
+                <li>Registro de empleados</li>
+                <li>Historial completo de movimientos</li>
+                <li>Sin necesidad de internet</li>
+                <li>Almacenamiento en el dispositivo</li>
+                <li>Interfaz móvil intuitiva</li>
+                <li>12 herramientas pre-configuradas</li>
+                <li>Reportes de uso en tiempo real</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Sistema de Control de Herramientas - v1.0 | Hecho con ❤️</p>
+        </div>
+    </div>
+</body>
+</html>

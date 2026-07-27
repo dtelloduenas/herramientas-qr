@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descarga QR - Herramientas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .btn-pdf {
+            background: #51cf66;
+            color: white;
+        }
+        
+        .btn-print {
+            background: #4c6ef5;
+            color: white;
+        }
+        
+        .progress {
+            text-align: center;
+            margin: 20px 0;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        #qr-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .qr-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #eee;
+            transition: transform 0.2s;
+        }
+        
+        .qr-card:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .qr-code {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .qr-info {
+            font-size: 0.9em;
+        }
+        
+        .qr-id {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 8px;
+        }
+        
+        .qr-nombre {
+            color: #333;
+            font-size: 0.85em;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .qr-categoria {
+            color: #999;
+            font-size: 0.8em;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .header, .controls, .progress {
+                display: none;
+            }
+            #qr-container {
+                grid-template-columns: repeat(3, 1fr);
+                box-shadow: none;
+                background: white;
+            }
+            .qr-card {
+                page-break-inside: avoid;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Códigos QR - Herramientas de Taller</h1>
+            <p>Sistema de Control de Herramientas - 12 Herramientas</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-print" onclick="window.print()">🖨️ Imprimir Directamente</button>
+            <button class="btn-pdf" onclick="descargarPDF()">📥 Descargar como PDF</button>
+        </div>
+        
+        <div class="progress">⏳ Generando códigos QR...</div>
+        
+        <div id="qr-container"></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        const herramientas = [
+            { id: 'H001', nombre: 'Destornillador Phillips Rojo', categoria: 'Destornilladores' },
+            { id: 'H002', nombre: 'Destornillador Plano Rojo', categoria: 'Destornilladores' },
+            { id: 'H003', nombre: 'Destornillador Gris/Blanco', categoria: 'Destornilladores' },
+            { id: 'H004', nombre: 'Alicate de Corte Diagonal', categoria: 'Alicates' },
+            { id: 'H005', nombre: 'Alicate Multifunción', categoria: 'Alicates' },
+            { id: 'H006', nombre: 'Pinza de Punta Larga', categoria: 'Alicates' },
+            { id: 'H007', nombre: 'Pielador de Cables', categoria: 'Herramientas Especiales' },
+            { id: 'H008', nombre: 'Crimpadoras', categoria: 'Herramientas Especiales' },
+            { id: 'H009', nombre: 'Martillo DeWALT', categoria: 'Herramientas Generales' },
+            { id: 'H010', nombre: 'Cortador de Tubo', categoria: 'Herramientas Generales' },
+            { id: 'H011', nombre: 'Llave Ajustable DeWALT', categoria: 'Herramientas Generales' },
+            { id: 'H012', nombre: 'Destornillador Multiherramienta', categoria: 'Herramientas Especiales' }
+        ];
+        
+        function generarQR() {
+            const container = document.getElementById('qr-container');
+            container.innerHTML = '';
+            
+            herramientas.forEach((herramienta, index) => {
+                setTimeout(() => {
+                    const card = document.createElement('div');
+                    card.className = 'qr-card';
+                    
+                    const qrDiv = document.createElement('div');
+                    qrDiv.id = `qr-${herramienta.id}`;
+                    qrDiv.className = 'qr-code';
+                    
+                    const info = document.createElement('div');
+                    info.className = 'qr-info';
+                    info.innerHTML = `
+                        <div class="qr-id">${herramienta.id}</div>
+                        <div class="qr-nombre">${herramienta.nombre}</div>
+                        <div class="qr-categoria">${herramienta.categoria}</div>
+                    `;
+                    
+                    card.appendChild(qrDiv);
+                    card.appendChild(info);
+                    container.appendChild(card);
+                    
+                    new QRCode(document.getElementById(`qr-${herramienta.id}`), {
+                        text: herramienta.id,
+                        width: 150,
+                        height: 150,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    
+                    if (index === herramientas.length - 1) {
+                        document.querySelector('.progress').innerHTML = '✅ Códigos QR generados - ¡Listo para imprimir!';
+                    }
+                }, index * 100);
+            });
+        }
+        
+        function descargarPDF() {
+            const elemento = document.getElementById('qr-container');
+            const opt = {
+                margin: 10,
+                filename: 'Codigos_QR_Herramientas.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(elemento).save();
+        }
+        
+        window.onload = generarQR;
+    </script>
+</body>
+</html>
